@@ -8,7 +8,7 @@
 import React, { useEffect } from 'react';
 import { Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, StackScreenProps } from '@react-navigation/stack';
 import {
   createChannels,
   requestPermissionAndToken,
@@ -17,21 +17,23 @@ import {
 } from './src/services/notification/NotificationService';
 import { navigationRef } from './src/services/navigation/NavigationService';
 
-const Stack = createStackNavigator();
+type RootStackParamList = {
+  Home: undefined;
+  OrderScreen: { orderId: string };
+};
+
+const Stack = createStackNavigator<RootStackParamList>();
 //TODO fix eslint and ts bugs
 
 function HomeScreen() {
   return <Text>Welcome Home</Text>;
 }
 
-type RouteProps = {
-  params?: {
-    orderId: string;
-  };
-};
 
-function OrderScreen({ route}: { route: RouteProps }) {
-  return <Text>Order ID: {route.params?.orderId}</Text>;
+type OrderScreenProps = StackScreenProps<RootStackParamList, 'OrderScreen'>;
+
+function OrderScreen({ route }: OrderScreenProps) {
+  return <Text>Order ID: {route.params.orderId}</Text>;
 }
 
 function App() {
