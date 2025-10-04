@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "697810607917",
+    "project_id": "carrental-7e62b",
+    "storage_bucket": "carrental-7e62b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697810607917:android:676bf99d8a60bced3d3da4",
+        "android_client_info": {
+          "package_name": "com.remotenotifications"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "697810607917-709kk3pvpai8ihmu68f6j57b9f8t57kt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.remotenotifications",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "697810607917-54tvaef0v053nr75mj73g2da8tjlatct.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBc-j9nu6ULCkVMva1U7OR5J5U6wV1-Pmg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "697810607917-54tvaef0v053nr75mj73g2da8tjlatct.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
