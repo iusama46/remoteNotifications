@@ -8,20 +8,21 @@ import { name as appName } from './app.json';
 import notifee from '@notifee/react-native';
 import { cancelOrderNotification, displayNotification } from './src/services/notification/NotificationService';
 import { getMessaging } from '@react-native-firebase/messaging';
+import { NotificationType } from './src/services/notification/types';
 
 
-//TODO Refactor
+//Background / killed notifications
 getMessaging().setBackgroundMessageHandler(async remoteMessage => {
     const { type, orderId } = remoteMessage.data;
     if (!type) return;
 
-    if (type === 'delete_notification' && orderId) {
+    if (type === NotificationType.DeleteNotification && orderId) {
         await cancelOrderNotification(orderId);
     } else {
         await displayNotification(remoteMessage.data);
     }
 
-    if (remoteMessage.data.type === 'delete_notification') {
+    if (remoteMessage.data.type === NotificationType.DeleteNotification) {
         await notifee.cancelNotification(remoteMessage.data.orderId);
     }
     console.log('Background message handled', remoteMessage);

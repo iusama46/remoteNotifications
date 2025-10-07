@@ -1,24 +1,35 @@
-import messaging from '@react-native-firebase/messaging';
+import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import notifee, { AndroidImportance, EventType } from '@notifee/react-native';
-import { navigationRef } from '../navigation/NavigationService';
-import { PermissionsAndroid, Platform } from 'react-native';
-
+import { Platform, PermissionsAndroid } from 'react-native';
+import { navigate } from '../navigation/NavigationService';
+import { NotificationData, NotificationType } from './types';
 
 // --------------------
 // Create notification channels
 // --------------------
-export async function createChannels() {
+export async function createChannels(): Promise<void> {
   await notifee.createChannel({
-    id: 'new-order',
+    id: NotificationType.NewOrder,
     name: 'New Orders',
-    sound: 'new_order', 
+    sound: 'new_order',
     importance: AndroidImportance.HIGH,
   });
 
   await notifee.createChannel({
-    id: 'cancellation',
-    name: 'Order Cancellation',
-    sound: 'cancellation', 
+    id: NotificationType.Cancellation,
+    name: 'Cancellations',
+    importance: AndroidImportance.HIGH,
+  });
+
+  await notifee.createChannel({
+    id: NotificationType.Pending,
+    name: 'pending',
+    importance: AndroidImportance.HIGH,
+  });
+
+  await notifee.createChannel({
+    id: NotificationType.OutDelivery,
+    name: 'out-delivery',
     importance: AndroidImportance.HIGH,
   });
 }
@@ -26,7 +37,7 @@ export async function createChannels() {
 // --------------------
 // Request permission & get FCM token
 // --------------------
-export async function requestPermissionAndToken() {
+export async function requestPermissionAndToken(): Promise<string | null> {
   try {
     //TODO
     if (Platform.OS === 'android') {
@@ -59,10 +70,11 @@ export async function requestPermissionAndToken() {
     return null;
   }
 }
+
 // --------------------
 // Display notification
 // --------------------
-export async function displayNotification(data) {
+export async function displayNotification(data: NotificationData): Promise<void> {
   const { type, orderId, title, body } = data;
   if (!orderId) return;
 
@@ -71,7 +83,7 @@ export async function displayNotification(data) {
     title: title || 'Notification',
     body: body || '',
     android: {
-      channelId: type === 'new_order' ? 'new-order' : 'cancellation',
+      channelId: type === NotificationType.NewOrder ? NotificationType.NewOrder : NotificationType.Cancellation,
       importance: AndroidImportance.HIGH,
       pressAction: { id: 'default' },
     },
@@ -82,7 +94,7 @@ export async function displayNotification(data) {
 // --------------------
 // Cancel notification by orderId
 // --------------------
-export async function cancelOrderNotification(orderId) {
+export async function cancelOrderNotification(orderId: string): Promise<void> {
   try {
     await notifee.cancelNotification(orderId);
     console.log(`Notification ${orderId} cancelled`);
@@ -94,68 +106,50 @@ export async function cancelOrderNotification(orderId) {
 // --------------------
 // Handle notification click
 // --------------------
-function handleNotificationNavigation(data) {
-  if (data?.type === 'new_order' && data?.orderId) {
-    navigationRef.current?.navigate('OrderScreen', { orderId: data.orderId });
+function handleNotificationNavigation(data?: NotificationData) {
+  if (data?.type === NotificationType.NewOrder && data?.orderId) {
+    navigate('OrderScreen', { orderId: data.orderId }); // ✅ Fully typed
   }
 }
 
 // --------------------
 // Foreground notifications
 // --------------------
-export function registerForegroundNotificationHandler() {
-  messaging().onMessage(async remoteMessage => {
-    const { type, orderId } = remoteMessage.data;
+export function registerForegroundNotificationHandler(): void {
+  messaging().onMessage(async (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
+    const { data } = remoteMessage.data as NotificationData;
+    const { type, orderId } = data;
+
     if (!type) return;
 
-    if (type === 'delete_notification' && orderId) {
+    if (type === NotificationType.Cancellation && orderId) {
       await cancelOrderNotification(orderId);
     } else {
-      await displayNotification(remoteMessage.data);
+      await displayNotification(data);
     }
   });
 }
 
 // --------------------
-// Background / killed notifications
-// --------------------
-messaging().setBackgroundMessageHandler(async remoteMessage => {
-  const { type, orderId } = remoteMessage.data;
-  if (!type) return;
-
-  if (type === 'delete_notification' && orderId) {
-    await cancelOrderNotification(orderId);
-  } else {
-    await displayNotification(remoteMessage.data);
-  }
-
-  if(remoteMessage.data.type === 'delete_notification'){
-    await notifee.cancelNotification(remoteMessage.data.orderId);
-  }
-  console.log('Background message handled', remoteMessage);
-});
-
-// --------------------
 // Notification click handlers
 // --------------------
-export function registerNotificationClickHandler() {
+export function registerNotificationClickHandler(): void {
   // Foreground click
   notifee.onForegroundEvent(({ type, detail }) => {
     if (type === EventType.PRESS) {
-      handleNotificationNavigation(detail.notification?.data);
+      handleNotificationNavigation(detail.notification?.data as NotificationData);
     }
   });
 
   // Background click
   messaging().onNotificationOpenedApp(remoteMessage => {
-    handleNotificationNavigation(remoteMessage.data);
+    handleNotificationNavigation(remoteMessage.data as NotificationData);
   });
 
   // Killed app
   messaging().getInitialNotification().then(remoteMessage => {
     if (remoteMessage) {
-      //handle Killed app notification
-      handleNotificationNavigation(remoteMessage.data);
+      handleNotificationNavigation(remoteMessage.data as NotificationData);
     }
   });
 }
@@ -163,6 +157,6 @@ export function registerNotificationClickHandler() {
 // --------------------
 // Clear leftover notifications on app launch
 // --------------------
-export async function clearLeftoverNotifications() {
+export async function clearLeftoverNotifications(): Promise<void> {
   await notifee.cancelAllNotifications();
 }
