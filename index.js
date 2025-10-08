@@ -5,11 +5,10 @@
 import { AppRegistry } from 'react-native';
 import App from './App';
 import { name as appName } from './app.json';
-import notifee from '@notifee/react-native';
-import { cancelOrderNotification, displayNotification } from './src/services/notification/NotificationService';
+import notifee, { EventType } from '@notifee/react-native';
+import { cancelOrderNotification, displayNotification, handleNotificationNavigation } from './src/services/notification/NotificationService';
 import { getMessaging } from '@react-native-firebase/messaging';
 import { NotificationType } from './src/services/notification/types';
-
 
 //Background / killed notifications
 getMessaging().setBackgroundMessageHandler(async remoteMessage => {
@@ -31,9 +30,11 @@ getMessaging().setBackgroundMessageHandler(async remoteMessage => {
 
 notifee.onBackgroundEvent(async ({ type, detail }) => {
     const { notification, pressAction } = detail;
-    console.log('details', detail);
-    //TODO
-    //clearLeftoverNotifications()
+    //const { type: orderType, orderId } = notification?.data;
+    if (type === EventType.PRESS) {
+        handleNotificationNavigation(notification?.data);
+        return;
+    }
 });
 
 AppRegistry.registerComponent(appName, () => App);

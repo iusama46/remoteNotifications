@@ -23,13 +23,13 @@ export async function createChannels(): Promise<void> {
 
   await notifee.createChannel({
     id: NotificationType.Pending,
-    name: 'pending',
+    name: 'Pending',
     importance: AndroidImportance.HIGH,
   });
 
   await notifee.createChannel({
     id: NotificationType.OutDelivery,
-    name: 'out-delivery',
+    name: 'Out Delivery',
     importance: AndroidImportance.HIGH,
   });
 }
@@ -72,12 +72,14 @@ export async function requestPermissionAndToken(): Promise<string | null> {
 }
 
 export const areNotificationsEnabled = async (): Promise<boolean> => {
+  //
   if (Platform.OS === 'ios') {
     const settings = await messaging().hasPermission();
     return settings === messaging.AuthorizationStatus.AUTHORIZED || settings === messaging.AuthorizationStatus.PROVISIONAL;
   } else if (Platform.OS === 'android') {
     // On Android, notifications are generally enabled by default unless the user disables them manually
     const enabled = await messaging().hasPermission();
+    console.log('enabled', enabled);
     return enabled === messaging.AuthorizationStatus.AUTHORIZED;
   }
   return false;
@@ -118,7 +120,7 @@ export async function cancelOrderNotification(orderId: string): Promise<void> {
 // --------------------
 // Handle notification click
 // --------------------
-function handleNotificationNavigation(data?: NotificationData) {
+export function handleNotificationNavigation(data?: NotificationData) {
   if (data?.type === NotificationType.NewOrder && data?.orderId) {
     navigate('OrderScreen', { orderId: data.orderId }); // ✅ Fully typed
   }
@@ -129,12 +131,12 @@ function handleNotificationNavigation(data?: NotificationData) {
 // --------------------
 export function registerForegroundNotificationHandler(): void {
   messaging().onMessage(async (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
-    const { data } = remoteMessage.data as NotificationData;
+    const data = remoteMessage?.data as NotificationData;
     const { type, orderId } = data;
-
     if (!type) return;
 
-    if (type === NotificationType.Cancellation && orderId) {
+
+    if (type === NotificationType.DeleteNotification && orderId) {
       await cancelOrderNotification(orderId);
     } else {
       await displayNotification(data);
@@ -150,18 +152,6 @@ export function registerNotificationClickHandler(): void {
   notifee.onForegroundEvent(({ type, detail }) => {
     if (type === EventType.PRESS) {
       handleNotificationNavigation(detail.notification?.data as NotificationData);
-    }
-  });
-
-  // Background click
-  messaging().onNotificationOpenedApp(remoteMessage => {
-    handleNotificationNavigation(remoteMessage.data as NotificationData);
-  });
-
-  // Killed app
-  messaging().getInitialNotification().then(remoteMessage => {
-    if (remoteMessage) {
-      handleNotificationNavigation(remoteMessage.data as NotificationData);
     }
   });
 }
