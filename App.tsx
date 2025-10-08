@@ -14,6 +14,7 @@ import {
   requestPermissionAndToken,
   registerForegroundNotificationHandler,
   registerNotificationClickHandler,
+  areNotificationsEnabled,
 } from './src/services/notification/NotificationService';
 import { navigationRef } from './src/services/navigation/NavigationService';
 
@@ -40,11 +41,26 @@ function App() {
   //const isDarkMode = useColorScheme() === 'dark';
 
   useEffect(() => {
-    createChannels();
-    requestPermissionAndToken();
-    registerForegroundNotificationHandler();
-    registerNotificationClickHandler();
+    const initNotifications = async () => {
+      const permissionGranted = await requestPermissionAndToken();
+
+      if (!permissionGranted) {
+        return;
+      }
+
+
+      const enabled = await areNotificationsEnabled();
+
+      if (permissionGranted && enabled) {
+        await createChannels();
+        await registerForegroundNotificationHandler();
+        await registerNotificationClickHandler();
+      }
+    };
+
+    initNotifications();
   }, []);
+
 
   return (
     <NavigationContainer ref={navigationRef}>
