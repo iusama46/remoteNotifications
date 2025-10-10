@@ -15,6 +15,7 @@ import {
   registerForegroundNotificationHandler,
   registerNotificationClickHandler,
   areNotificationsEnabled,
+  handleInitialNotification,
 } from './src/services/notification/NotificationService';
 import { navigationRef } from './src/services/navigation/NavigationService';
 
@@ -53,6 +54,7 @@ function App() {
 
       if (permissionGranted && enabled) {
         await createChannels();
+        await handleInitialNotification();
         await registerForegroundNotificationHandler();
         await registerNotificationClickHandler();
       }

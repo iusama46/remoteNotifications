@@ -1,10 +1,6 @@
 {
   "message": {
-    "token": "eqScgEj4SwqxBF3NAZuiws:APA91bHO33sbboG34T0kQ4d74bRGdSy0j3GJJHNcLAo7CJJCiu6qS33XJe2K147GtzKiuwRLVCgO0OJiXxXw39tzdVjUzC4W9x6WnjqDMKDDx14fCkDGfHk",
-    "notification": {
-      "title": "New Order Received",
-      "body": "Order #12345 is waiting for you!"
-    },
+    "token": "flRgD5Yu205atll0XVr_C_:APA91bHCPpaVzvDKqCVgAPOOHsWR5EcILGhDvarFM-JYoA9JX25AFACzSRzVSSeE50Pu4znPD3rTXeG4qQb66BbGnYtDwc-GDjrEkB_kG5iRuq6hkUg0aFM",
     "data": {
       "type": "new_order",
       "orderId": "12345",
@@ -12,20 +8,17 @@
       "body": "Order #12345 is waiting for you!"
     },
     "android": {
-      "priority": "HIGH",
-      "notification": {
-        "channel_id": "new-order",
-        "sound": "new_order",
-        "tag": "order_12345"
-      }
+      "priority": "HIGH"
+   
     }
   }
 }
 
 
+
 {
   "message": {
-    "token": "eqScgEj4SwqxBF3NAZuiws:APA91bHO33sbboG34T0kQ4d74bRGdSy0j3GJJHNcLAo7CJJCiu6qS33XJe2K147GtzKiuwRLVCgO0OJiXxXw39tzdVjUzC4W9x6WnjqDMKDDx14fCkDGfHk",
+    "token": "flRgD5Yu205atll0XVr_C_:APA91bHCPpaVzvDKqCVgAPOOHsWR5EcILGhDvarFM-JYoA9JX25AFACzSRzVSSeE50Pu4znPD3rTXeG4qQb66BbGnYtDwc-GDjrEkB_kG5iRuq6hkUg0aFM",
     "data": {
       "type": "delete_notification",
       "orderId": "12345"
@@ -35,3 +28,4 @@
     }
   }
 }
+

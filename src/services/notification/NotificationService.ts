@@ -8,6 +8,10 @@ import { NotificationData, NotificationType } from './types';
 // Create notification channels
 // --------------------
 export async function createChannels(): Promise<void> {
+  if (Platform.OS === 'ios') {
+    return;
+  }
+
   await notifee.createChannel({
     id: NotificationType.NewOrder,
     name: 'New Orders',
@@ -32,6 +36,14 @@ export async function createChannels(): Promise<void> {
     name: 'Out Delivery',
     importance: AndroidImportance.HIGH,
   });
+}
+
+export async function deleteChannel(id: string): Promise<void> {
+  if (Platform.OS === 'ios') {
+    return;
+  }
+
+  await notifee.deleteChannel(id);
 }
 
 // --------------------
@@ -71,6 +83,7 @@ export async function requestPermissionAndToken(): Promise<string | null> {
   }
 }
 
+//TODO
 export const areNotificationsEnabled = async (): Promise<boolean> => {
   //
   if (Platform.OS === 'ios') {
@@ -161,4 +174,19 @@ export function registerNotificationClickHandler(): void {
 // --------------------
 export async function clearLeftoverNotifications(): Promise<void> {
   await notifee.cancelAllNotifications();
+}
+
+// --------------------
+// Initial notification
+// --------------------
+export async function handleInitialNotification(): Promise<void> {
+  const initialNotification = await notifee.getInitialNotification();
+
+  if (initialNotification) {
+    console.log('Notification caused application to open:', initialNotification.notification);
+    console.log('Press action used to open the app:', initialNotification.pressAction);
+
+    // TODO: Handle notification data
+    handleNotificationNavigation(initialNotification.notification?.data as NotificationData);
+  }
 }

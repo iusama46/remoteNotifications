@@ -14,6 +14,9 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
+use_frameworks! :linkage => :static
+$RNFirebaseAsStaticFramework = true
+
 target 'remoteNotifications' do
   config = use_native_modules!
 
